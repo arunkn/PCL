@@ -107,3 +107,6 @@
 (defmacro where (&rest clauses)
   `#'(lambda (cd)
        (and ,@(make-comparisons-list clauses))))
+
+; Emacs screams if there is no newline towards the end ;)
+
