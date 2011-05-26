@@ -53,6 +53,8 @@
 ;;; Instead of having a select-by-artist, by-title, rating and ripped we can have a
 ;;; generic select function
 
+;;; Example usage of select
+;;; (select (where :ARTIST "Arun"))
 (defun select (selector-fn)
   (remove-if-not selector-fn *db*))
 
@@ -71,3 +73,18 @@
        (if artist   (equal (getf cd :artist) artist) t)
        (if rating   (equal (getf cd :rating) rating) t)
        (if ripped-p (equal (getf cd :ripped)  ripped) t))))
+
+;;; Example usage of update
+;; (update (where :Artist "Me")
+;; 	:Artist "Arun" :ripped t :rating 10)
+(defun update (selector-fn &key title artist rating (ripped nil ripped-p))
+  (setf *db*
+	(mapcar
+	 #'(lambda (row)
+	     (when (funcall selector-fn row)
+	       (if title    (setf (getf row :title)  title))
+	       (if artist   (setf (getf row :artist) artist))
+	       (if rating   (setf (getf row :rating) rating))
+	       (if ripped-p (setf (getf row :ripped) ripped)))
+	     row)
+	 *db*)))
