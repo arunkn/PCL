@@ -41,3 +41,33 @@
   (with-open-file (in filename)
     (with-standard-io-syntax
       (setf *db* (read in)))))
+
+;; Querying the database
+(defun select-by-artist (artist)
+  (remove-if-not
+   #'(lambda (cd)
+       (equal (getf cd :artist)
+	      artist))
+   *db*))
+
+;;; Instead of having a select-by-artist, by-title, rating and ripped we can have a
+;;; generic select function
+
+(defun select (selector-fn)
+  (remove-if-not selector-fn *db*))
+
+(defun artist-selector (artist)
+  #'(lambda (cd)
+      (equal (getf cd :artist)
+	     artist)))
+
+;;; To avoid having to write boilerplate code for title-selector, ripped-selector and
+;;; rating-selector we are going to have a 'where'
+
+(defun where (&key title artist rating (ripped nil ripped-p))
+  #'(lambda (cd)
+      (and
+       (if title    (equal (getf cd :title)  title)  t)
+       (if artist   (equal (getf cd :artist) artist) t)
+       (if rating   (equal (getf cd :rating) rating) t)
+       (if ripped-p (equal (getf cd :ripped)  ripped) t))))
