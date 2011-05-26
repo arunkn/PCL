@@ -66,13 +66,13 @@
 ;;; To avoid having to write boilerplate code for title-selector, ripped-selector and
 ;;; rating-selector we are going to have a 'where'
 
-(defun where (&key title artist rating (ripped nil ripped-p))
-  #'(lambda (cd)
-      (and
-       (if title    (equal (getf cd :title)  title)  t)
-       (if artist   (equal (getf cd :artist) artist) t)
-       (if rating   (equal (getf cd :rating) rating) t)
-       (if ripped-p (equal (getf cd :ripped)  ripped) t))))
+;; (defun where (&key title artist rating (ripped nil ripped-p))
+;;   #'(lambda (cd)
+;;       (and
+;;        (if title    (equal (getf cd :title)  title)  t)
+;;        (if artist   (equal (getf cd :artist) artist) t)
+;;        (if rating   (equal (getf cd :rating) rating) t)
+;;        (if ripped-p (equal (getf cd :ripped)  ripped) t))))
 
 ;;; Example usage of update
 ;; (update (where :Artist "Me")
@@ -90,6 +90,22 @@
 	 *db*)))
 
 ;;; delete function
+;;; Example: (delete-rows (where :title "hello"))
 (defun delete-rows (selector-fn)
   (setf *db*
 	(remove-if selector-fn *db*)))
+
+(defun make-comparison-expr (field value)
+  `(equal (getf cd ,field) ,value))
+
+(defun make-comparisons-list (fields)
+  (loop while fields
+       collecting (make-comparison-expr (pop fields) (pop fields))))
+
+
+;;; Eg: (select (where :Artist "arun" :ripped nil))
+(defmacro where (&rest clauses)
+  `#'(lambda (cd)
+       (and ,@(make-comparisons-list clauses))))
+
+
