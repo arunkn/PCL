@@ -1,3 +1,5 @@
+(defvar *test-name* nil)
+
 (defun test-+ ()
   (format t "~:[FAIL~;PASS~] ... ~a~%" (= (+ 1 2) 3) '(= (+ 1 2) 3))
   (format t "~:[FAIL~;PASS~] ... ~a~%" (= (+ 1 2 3) 6) '(= (+ 1 2 3) 6))
@@ -29,7 +31,7 @@
     (= (+ 1 2) 4)))
 
 (defun my-report-result-v2 (result form)
-  (format t "~:[FAIL~;PASS~] ... ~a~%" result form)
+  (format t "~:[FAIL~;PASS~] ... ~a: ~a~%" result *test-name* form)
   result)
 
 ;;; Usage of combine-results should be like
@@ -57,7 +59,21 @@
     ,@(loop for f in forms collect `(my-report-result-v2 ,f ',f))))
 
 (defun test-+-v5 ()
-  (check-v3
-    (= (+ 1 2) 3)
-    (= (+ 1 2 3) 6)
-    (= (+ 1 2) 4)))
+  (let ((*test-name* 'test-+-v5))
+    (check-v3
+      (= (+ 1 2) 3)
+      (= (+ 1 2 3) 6)
+      (= (+ 1 2) 3))))
+
+(defun test-* ()
+  (let ((*test-name* 'test-*))
+    (check-v3
+      (= (* 1 5) 5)
+      (= (* 2 2) 4)
+      (= (* 6 6) 12))))
+
+(defun test-arithmetic ()
+  (combine-results
+    (test-*)
+    (test-+-v5)))
+
