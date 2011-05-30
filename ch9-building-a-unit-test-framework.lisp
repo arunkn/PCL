@@ -72,8 +72,32 @@
       (= (* 2 2) 4)
       (= (* 6 6) 12))))
 
-(defun test-arithmetic ()
-  (combine-results
-    (test-*)
-    (test-+-v5)))
+;; (defun test-arithmetic ()
+;;   (combine-results
+;;     (test-*)
+;;     (test-+-v5)))
 
+(defmacro deftest (name parameters &body body)
+  `(defun ,name ,parameters
+     (let ((*test-name* (append *test-name* (list ',name))))
+       ,@body)))
+
+(deftest my-test-+ ()
+  (check-v3
+      (= (+ 1 2) 3)
+      (= (+ 1 2 3) 6)
+      (= (+ 1 2) 3)))
+
+(deftest my-test-* ()
+  (check-v3
+    (= (* 1 5) 5)
+    (= (* 2 2) 4)
+    (= (* 6 6) 36)))
+
+(deftest test-arithmetic ()
+  (combine-results
+    (my-test-*)
+    (my-test-+)))
+
+(deftest test-math ()
+  (test-arithmetic))
