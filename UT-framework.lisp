@@ -1,7 +1,9 @@
 (load "utility.lisp")
 
+(defvar *test-name* nil)
+
 (defun report-result (result form)
-  (format t "~:[FAIL~;PASS~] ... ~a~%" result form)
+  (format t "~:[FAIL~;PASS~] ... ~a: ~a~%" result *test-name* form)
   result)
 
 (defmacro combine-results (&body forms)
@@ -18,8 +20,20 @@
 	     collect `(report-result ,f ',f))))
 
 (defun test-+ ()
-  (check-result
-   (= (+ 1 1) 2)
-   (= (+ 2 2) 4)
-   (= (+ -2 -5) -7)))
+  (let ((*test-name* 'test-+))
+    (check-result
+      (= (+ 1 1) 2)
+      (= (+ 2 2) 4)
+      (= (+ -2 -5) -7))))
 
+(defun test-* ()
+  (let ((*test-name* 'test-*))
+    (check-result
+      (= (* 1 1) 1)
+      (= (* 2 2) 4)
+      (= (* -2 -5) 12))))
+
+(defun test-arithmetic ()
+  (combine-results
+    (test-*)
+    (test-+)))
